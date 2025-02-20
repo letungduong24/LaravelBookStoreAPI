@@ -13,8 +13,21 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $orders = $user->orders()->with('book')->get();
+        $ordersInProcess = $user->orders()
+            ->with('book')
+            ->whereIn('status', ['Đang chờ duyệt', 'Đang giao'])
+            ->get();
+        $ordersDone = $user->orders()
+            ->with('book')
+            ->where('status', 'Đã xong')
+            ->get();
+
+        $orders = [
+            'orderInProcess' => $ordersInProcess,
+            'orderDone'      => $ordersDone,
+        ];
         return response()->json($orders);
+
     }
 
     /**
